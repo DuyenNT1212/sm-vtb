@@ -1,0 +1,38 @@
+<table id="datatablesSimple" class="table table-hover table-bordered">
+    <thead class="thead-light">
+    <tr>
+        <th>STT</th>
+        <th>Tên hệ thống</th>
+        <th>Người quản lý</th>
+        <th>Thời gian</th>
+        <th>Action</th>
+        <th style="display: none">Action</th>
+    </tr>
+    </thead>
+    <tbody>
+    <% for (var i = 0; i < data.length; i++) { %>
+        <tr>
+            <td style="width: 10%;"><%= i %></td>
+            <td style="width: 25%;"><%= data[i].name %></td>
+            <td style="width: 20%;"><%= data[i].username %></td>
+            <td style="width: 25%;"><%= data[i].created_time %></td>
+            <td style="width: 20%;">
+                <button class="btn btn-default edit-system" data-toggle="modal"
+                        data-target="#modalEditUser" data-backdrop="static"><i
+                            class="fas fa-edit"></i></button>
+                <button class="btn btn-default delete-system" data-toggle="modal"
+                        data-target="#modalEditUser" data-backdrop="static"><i
+                            class="far fa-trash-alt "></i></button>
+            </td>
+            <td style="width: 0; display: none"><%= data[i].id %></td>
+        </tr>
+    <% } %>
+    </tbody>
+</table>
+
+<script>
+    var datatablesSimple = document.getElementById('datatablesSimple');
+    if (datatablesSimple) {
+        new simpleDatatables.DataTable(datatablesSimple);
+    }
+</script>

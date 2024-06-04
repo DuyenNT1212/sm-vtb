@@ -34,9 +34,7 @@ async function getAllUser() {
 async function getUserByUsername(username) {
   let pro = new Promise((resolve, reject) => {
     let sql =
-      "select u.user_id, username, role_name, password from user u\
-          left join user_roles ur on u.user_id = ur.user_id \
-          left join `role` r on r.role_id = ur.role_id where username = ? ";
+      "select * from SM_USER where username = ? ";
     db.query(sql, [username], (err, data) => {
       if (err) {
         console.log(err);
@@ -128,14 +126,13 @@ function getAccountInfoFromToken(req) {
   };
 }
 
-async function getAllLog() {
+async function getAllSystem() {
   let pro = new Promise((resolve, reject) => {
-    let sql = "select * from log_download order by time desc";
+    let sql = "select * from sm_system order by created_time desc";
     db.query(sql, (err, data) => {
       if (err) throw err;
-      listUser = data;
       for (let i = 0; i < data.length; i++) {
-        data[i].time = moment(data[i].time).format("DD/MM/YYYY HH:mm:ss");
+        data[i].created_time = moment(data[i].created_time).format("DD/MM/YYYY HH:mm:ss");
       }
       resolve(data);
     });
@@ -147,6 +144,27 @@ async function getAllLog() {
     (reason) => {
       console.error(reason); // Error!
     }
+  ));
+}
+
+async function getDetailBySystemId(systemId) {
+  let pro = new Promise((resolve, reject) => {
+    let sql = "select * from sm_ip_hostname where system_id = ? order by created_time desc";
+    db.query(sql, [systemId], (err, data) => {
+      if (err) throw err;
+      for (let i = 0; i < data.length; i++) {
+        data[i].created_time = moment(data[i].created_time).format("DD/MM/YYYY HH:mm:ss");
+      }
+      resolve(data);
+    });
+  });
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
   ));
 }
 
@@ -257,14 +275,12 @@ async function changeFingerprint(fingerprint, byUser) {
   ));
 }
 
-async function addUser(username, fullname, hashPassword, salt, roleId) {
+async function addSystem(name, username) {
   let pro = new Promise((resolve, reject) => {
-    let sqlAddUser =
-      "insert into user(username, fullname, password, salt)\
-                    values (?, ?, ?, ?)";
+    let sql = "insert into sm_system(name, username) values (?, ?)";
     db.query(
-      sqlAddUser,
-      [username, fullname, hashPassword, salt],
+      sql,
+      [name, username],
       (err, data) => {
         if (err) throw err;
         resolve(data);
@@ -272,10 +288,7 @@ async function addUser(username, fullname, hashPassword, salt, roleId) {
     );
   });
 
-  let userAdd = await getUserByUsername(username);
-  addRoleUser(userAdd[0].user_id, roleId);
-
-  let listUser = getAllUser();
+  let listUser = getAllSystem();
 
   return (res = pro.then(
     (val) => {
@@ -287,16 +300,43 @@ async function addUser(username, fullname, hashPassword, salt, roleId) {
   ));
 }
 
-async function deleteUser(userId) {
-  let sqlDelUser = "delete from user where user_id = ?";
-  let sqlDelRole = "delete from user_roles where user_id = ?"
-  let sqlGetUser = "select u.user_id, username, role_name, password from user u\
-                  left join user_roles ur on u.user_id = ur.user_id \
-                  left join `role` r on r.role_id = ur.role_id";
-  db.query(sqlDelRole, userId, (err, data) => {
+async function editSystem(systemId, ip, hostname, note) {
+  let pro = new Promise((resolve, reject) => {
+    let sql = "insert into sm_ip_hostname(system_id, ip, hostname, note) values (?, ?, ?, ?)";
+    db.query(
+        sql,
+        [systemId, ip, hostname, note],
+        (err, data) => {
+          if (err) throw err;
+          resolve(data);
+        }
+    );
+  });
+
+  let listUser = await getDetailBySystemId(systemId);
+
+  return (res = pro.then(
+      (val) => {
+        return val.length != 0 ? listUser : null;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
+async function deleteSys(sysId) {
+  let sqlDelSys = "delete from sm_system where id = ?";
+  let sqlDelSysIpHost = "delete from sm_ip_hostname where system_id = ?"
+  let sqlDelSysFile = "delete from sm_server_file where system_id = ?"
+  let sqlGetUser = "select * from sm_system";
+  db.query(sqlDelSysIpHost, sysId, (err, data) => {
     if (err) throw err;
   });
-  db.query(sqlDelUser, userId, (err, data) => {
+  db.query(sqlDelSysFile, sysId, (err, data) => {
+    if (err) throw err;
+  });
+  db.query(sqlDelSys, sysId, (err, data) => {
     if (err) throw err;
   });
 
@@ -316,6 +356,24 @@ async function deleteUser(userId) {
   ));
 }
 
+async function deleteIpHostname(id) {
+  let pro = new Promise((resolve, reject) => {
+    let sqlDelSysIpHost = "delete from sm_ip_hostname where id = ?"
+    db.query(sqlDelSysIpHost, [id], (err, data) => {
+      if (err) throw err;
+      resolve(data);
+    });
+  });
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
 module.exports = {
   getAllUser,
   getUserByUsername,
@@ -323,12 +381,15 @@ module.exports = {
   addRoleUser,
   saveLogDownload,
   getAccountInfoFromToken,
-  getAllLog,
+  getAllSystem,
   getLogByUsername,
   getAllAccountCredential,
   addAccountCredential,
   getHistoryFingerprint,
   changeFingerprint,
-  addUser,
-  deleteUser
+  addSystem,
+  deleteSys,
+  editSystem,
+  getDetailBySystemId,
+  deleteIpHostname
 };

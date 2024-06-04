@@ -1,0 +1,142 @@
+<!-- Header -->
+<%- include('partials/header.ejs') %>
+<div id="layoutSidenav">
+    <!-- Sidebar -->
+    <div id="layoutSidenav_content">
+        <main>
+            <div class="container-fluid px-4">
+                <div class="row">
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Tên hệ thống</span>
+                            </div>
+                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">IP</span>
+                            </div>
+                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="input-group">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="basic-addon1">Hostname</span>
+                            </div>
+                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username" aria-describedby="basic-addon1">
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="searchBtn" class="btn btn-info">Tìm kiếm</button>
+                    </div>
+                    <div class="col-md-2">
+                        <button id="btnOpenModalAdd" class="btn btn-info">Thêm mới</button>
+                    </div>
+                </div>
+
+                <div class="row" id="tableActivity">
+                    <div class="card-body" id="tableManagement">
+                        <table id="datatablesSimple" class="table table-hover table-bordered">
+                            <thead class="thead-light">
+                            <tr>
+                                <th>STT</th>
+                                <th>Tên hệ thống</th>
+                                <th>Người quản lý</th>
+                                <th>Thời gian</th>
+                                <th>Action</th>
+                                <th style="display: none">Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <% for (var i = 0; i < data.length; i++) { %>
+                                <tr>
+                                    <td style="width: 10%;"><%= i %></td>
+                                    <td style="width: 25%;"><%= data[i].name %></td>
+                                    <td style="width: 20%;"><%= data[i].username %></td>
+                                    <td style="width: 25%;"><%= data[i].created_time %></td>
+                                    <td style="width: 20%;">
+                                        <button class="btn btn-default edit-system" data-toggle="modal"
+                                                data-target="#modalEditUser" data-backdrop="static"><i
+                                                    class="fas fa-edit"></i></button>
+                                        <button class="btn btn-default delete-system" data-toggle="modal"
+                                                data-target="#modalEditUser" data-backdrop="static"><i
+                                                    class="far fa-trash-alt "></i></button>
+                                    </td>
+                                    <td style="width: 0; display: none"><%= data[i].id %></td>
+                                </tr>
+                            <% } %>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+
+            </div>
+        </main>
+    </div>
+</div>
+
+<!-- The Modal -->
+<div class="modal" id="modalEditUser"></div>
+
+<div id="add-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="max-width: 50vw!important;" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add Data</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="add-form">
+                    <div class="form-group">
+                        <label for="name">Tên hệ thống</label>
+                        <input id="newSystemName" type="text" class="form-control" name="name" required>
+                    </div>
+                    <button id="btnAddNew" class="btn btn-primary">Add</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="details-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="max-width: 80vw" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Details</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-3">
+                        <label for="newIp">IP</label>
+                        <input type="text" class="form-control" id="newIp">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="newHostname">Hostname</label>
+                        <input type="text" class="form-control" id="newHostname">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="newNote">Note</label>
+                        <input type="text" class="form-control" id="newNote">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <button id="btn-add-new-ip-hostname" style="position: relative; top: 32px" type="submit" class="btn btn-primary">Them moi</button>
+                    </div>
+                </div>
+                <div id="tableIpHostName">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Footer -->
+<%- include('partials/footer.ejs') %>

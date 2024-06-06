@@ -149,6 +149,123 @@ $("#tableManagement").on("click", ".edit-system", function () {
     });
 });
 
+$("fileServer").change(function () {
+
+})
+
+$(".delete-file").click(function () {
+    $("#modalEditFileInfo").empty();
+    var currentRow = $(this).closest("tr");
+    var resId = currentRow.find("td:eq(0)").text();
+    $("#modalEditFileInfo").append(showModalConfirmDeleteFile(resId));
+    $("#btnConfirmDelete").click(function () {
+        $("#btnConfirmDelete").removeAttr("data-dismiss");
+        $("#btnCancel").attr("disabled", "disabled");
+        $("#messageDelete").append(
+            '<div class="spinner-border text-info" role="status"><span class="sr-only">Loading...</span></div>'
+        );
+        $("#modalEditFileInfo").attr("disabled", "disabled");
+        $.ajax({
+            url: "/file/delete",
+            type: "post",
+            data: {
+                resId: resId,
+            },
+        })
+            .done(function (res, status, xhr) {
+                $("#tableFileUpload").empty();
+                $("#btnConfirmDelete").attr("data-dismiss", "modal");
+                $("#btnCancel").removeAttr("disabled");
+                $("#modalEditFileInfo").removeAttr("disabled");
+                $("#messageDelete").empty();
+                $("#tableFileUpload").empty();
+                $.ajax({
+                    url: "/file/search",
+                    type: "get",
+                    data: {
+                        key: "",
+                        from: start,
+                        to: end,
+                    },
+                    success: function (res) {
+                        $("#tableFileUpload").append(res);
+                    },
+                });
+            })
+            .fail((err) => {
+                expireToken(err.status);
+                $("#btnUpdateUser").attr("data-dismiss", "modal");
+            });
+    });
+});
+
+$(".download-file").click(function () {
+    $("#modalEditFileInfo").empty();
+    var currentRow = $(this).closest("tr");
+    var fileName = currentRow.find("td:eq(2)").text();
+    $("#modalEditFileInfo").append(
+        showModalConfirmRedownloadFileUpload(fileName)
+    );
+    $("#btnConfirmDownloadFileUpload").click(function () {
+        $("#btnConfirmDownloadFileUpload").removeAttr("data-dismiss");
+        $("#btnCancel").attr("disabled", "disabled");
+        $("#messageReDownloadFileUpload").append(
+            '<div class="spinner-border text-info" role="status"><span class="sr-only">Loading...</span></div>'
+        );
+        $("#modalEditFileInfo").attr("disabled", "disabled");
+        $.ajax({
+            xhrFields: {
+                responseType: "arraybuffer",
+            },
+            url: "/file-upload/download",
+            type: "POST",
+            data: {
+                fileName: fileName,
+            },
+            statusCode: {
+                404: function () {
+                    $("#messageReDownloadFileUpload").empty();
+                    $("#messageReDownloadFileUpload").append(
+                        '\
+                        <div class="alert alert-warning" role="alert">Not found this file in system.</div>'
+                    );
+                },
+            },
+        })
+            .done(function (res, status, xhr) {
+                let fileName = extractFileNameFromXhr(xhr);
+                res && saveFile(fileName, "application/zip", res);
+                $("#btnConfirmDownloadFileUpload").attr("data-dismiss", "modal");
+
+                $("#btnCancel").removeAttr("disabled");
+                $("#modalEditFileInfo").removeAttr("disabled");
+                $("#messageReDownloadFileUpload").empty();
+                $("#messageReDownloadFileUpload").append(
+                    '\
+                  <div class="alert alert-success" role="alert">Download successfully</div>'
+                );
+                $("#tableFileUpload").empty();
+                $.ajax({
+                    url: "/file/search",
+                    type: "get",
+                    data: {
+                        key: "",
+                        from: start,
+                        to: end,
+                    },
+                    success: function (res) {
+                        $("#tableFileUpload").append(res);
+                    },
+                });
+            })
+            .fail((xhr, status, errorThrow) => {
+                $("#btnCancel").removeAttr("disabled");
+                $("#btnConfirmDownloadFileUpload").removeAttr("disabled");
+                $("#messageReDownloadFileUpload").empty();
+                expireToken(xhr.status);
+            });
+    });
+});
 function openDetailsModal(id) {
     fetch(`/details/${id}`)
         .then(response => response.json())

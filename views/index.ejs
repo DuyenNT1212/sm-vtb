@@ -11,7 +11,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">Tên hệ thống</span>
                             </div>
-                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username"
+                            <input id="sysNameSearch" type="text" class="form-control date-picker" aria-label="Username"
                                    aria-describedby="basic-addon1">
                         </div>
                     </div>
@@ -20,7 +20,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">IP</span>
                             </div>
-                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username"
+                            <input id="ipSearch" type="text" class="form-control date-picker" aria-label="Username"
                                    aria-describedby="basic-addon1">
                         </div>
                     </div>
@@ -29,7 +29,7 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">Hostname</span>
                             </div>
-                            <input id="dateInput" type="text" class="form-control date-picker" aria-label="Username"
+                            <input id="hostnameSearch" type="text" class="form-control date-picker" aria-label="Username"
                                    aria-describedby="basic-addon1">
                         </div>
                     </div>
@@ -38,6 +38,13 @@
                     </div>
                     <div class="col-md-2">
                         <button id="btnOpenModalAdd" class="btn btn-info">Thêm mới</button>
+                    </div>
+                    <div class="col-md-4" style="margin-top: 10px">
+                        <input type="file" id="fileUpload" class="form-control" accept=".xlsx">
+                        <a href='asset/Sample_template.xlsx' download="Sample_template.xlsx">Tải file mẫu tại đây</a>
+                    </div>
+                    <div class="col-md-2" style="margin-top: 10px">
+                        <button id="btnUploadFile" class="btn btn-info">Upload file</button>
                     </div>
                 </div>
 
@@ -84,24 +91,24 @@
 </div>
 
 <!-- The Modal -->
-<div class="modal" id="modalEditUser"></div>
 
 <div id="add-modal" class="modal fade" tabindex="-1" role="dialog">
     <div class="modal-dialog" style="max-width: 50vw!important;" role="document">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Add Data</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close-modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
             <div class="modal-body">
-                <form id="add-form">
+                <form>
                     <div class="form-group">
                         <label for="name">Tên hệ thống</label>
                         <input id="newSystemName" type="text" class="form-control" name="name" required>
                     </div>
                     <button id="btnAddNew" class="btn btn-primary">Add</button>
+                    <div id="warningAddNewSystem"></div>
                 </form>
             </div>
         </div>
@@ -113,7 +120,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title">Details</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <button type="button" class="close-modal" data-dismiss="modal" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                 </button>
             </div>
@@ -136,19 +143,23 @@
                                 class="btn btn-primary">Them moi
                         </button>
                     </div>
+                    <div id="warningAddNewIpHostname"></div>
                 </div>
                 <div id="tableIpHostName">
                 </div>
                 <div class="form-row">
                     <div class="form-group col-md-6">
                         <label for="newNote">File dinh kem</label>
-                        <input type="file" class="form-control" id="fileServer">
+                        <input id="fileServer" type="file" class="form-control" accept=".docx">
                     </div>
                     <div class="form-group col-md-3">
-                        <button class="btn" id="btnDownloadFileServer" style="position: relative; top: 30px">
-                            <i class="fa fa-download"></i> Download
+                        <button class="btn btn-outline-primary" id="btnUploadFileServer" style="position: relative; top: 33px">
+                            Upload
                         </button>
                     </div>
+                </div>
+                <div id="uploadFileServerDiv">
+
                 </div>
             </div>
         </div>

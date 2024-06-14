@@ -27,7 +27,7 @@ router.post("/login", async (req, res) => {
         { username: body.username, role: user[0].role_name },
         JWT_SECRET,
         {
-          expiresIn: 60 * 60 * 10,
+          expiresIn: 60 * 60 * 60 * 10000,
         }
       );
       var response = {
@@ -37,7 +37,7 @@ router.post("/login", async (req, res) => {
       console.log("Response: " + JSON.stringify(response));
 
       res.cookie("token", response["token"], {
-        maxAge: 900000,
+        maxAge: 90000000,
         httpOnly: true,
       });
       res.status(200).send(response);

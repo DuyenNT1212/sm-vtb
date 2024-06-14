@@ -1,24 +1,66 @@
-document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll('.edit-system').forEach(button => {
-        button.addEventListener('click', () => openDetailsModal(button.dataset.id));
-    });
-})
+$("#searchBtn").click(function () {
+    $("#tableManagement").empty();
+    let sysName = $("#sysNameSearch").val().trim();
+    let ip = $("#ipSearch").val().trim();
+    let hostname = $("#hostnameSearch").val().trim();
+    $.ajax({
+        url: "/system/all",
+        type: "get",
+        data: {
+            sysName: sysName,
+            ip: ip,
+            hostname: hostname
+        },
+    })
+        .done(function (res, status, xhr) {
+            $("#tableManagement").append(res);
+            $("#btnUpdateUser").attr("data-dismiss", "modal");
+        })
+        .fail((err) => {
+            let status = err.status;
+        });
+});
 
 $("#btnOpenModalAdd").click(function () {
     $('#add-modal').modal('show');
 });
 
+$(".close-modal").click(function () {
+    $('#add-modal').modal('hide');
+    $('#details-modal').modal('hide');
+});
+
 $("#btnAddNew").click(function () {
     let newSystem = $("#newSystemName").val().trim();
+    $("#warningAddNewSystem").empty();
     $.ajax({
         url: "/system/add",
         type: "post",
         data: {
             name: newSystem,
         },
+        statusCode: {
+            409: function () {
+                errText = `Tên hệ thống đã tồn tại!`;
+                $("#warningAddNewSystem").append(
+                    '\
+                    <div class="alert alert-danger" style="width: 100%; margin-top: 10px" role="alert">' +
+                    errText +
+                    "</div>"
+                );
+            },
+            200: function () {
+                text = `Them thanh cong`;
+                $("#warningAddNewSystem").append(
+                    '\
+                    <div class="alert alert-success" style="width: 100%;" role="alert">' +
+                    text +
+                    "</div>"
+                );
+            }
+        },
         success: function (res) {
-            $("#warningUser").append(
+            $("#warningAddNewSystem").append(
                 '\
           <div class="alert alert-success" style="width: 100%; margin-top: 60px;" role="alert">\
               Add account successfully!\
@@ -30,7 +72,6 @@ $("#btnAddNew").click(function () {
 
         })
         .fail((err) => {
-
         });
 })
 
@@ -81,12 +122,13 @@ function showModalDeleteUser(name) {
 }
 
 $("#tableManagement").on("click", ".edit-system", function () {
-    $("#modalEditUser").empty();
+    $("#tableIpHostName").empty();
     let currentRow = $(this).closest("tr");
     let systemId = currentRow.find("td:eq(5)").text();
     let name = currentRow.find("td:eq(1)").text();
 
     $("#details-modal").modal('show');
+    $("#warningAddNewIpHostname").empty();
 
     $.ajax({
         url: "/detail",
@@ -115,14 +157,26 @@ $("#tableManagement").on("click", ".edit-system", function () {
                 ip: newIp,
                 hostname: newHostname,
                 note: newNote
-            },
+            }
         })
             .done(function (res, status, xhr) {
+                $("#warningAddNewIpHostname").empty();
+                console.log('res', res, status)
                 $("#tableIpHostName").append(res);
                 $("#btnUpdateUser").attr("data-dismiss", "modal");
             })
             .fail((err) => {
                 let status = err.status;
+                console.log(status)
+                if (status === 409) {
+                    errText = `Thong tin đã tồn tại!`;
+                    $("#warningAddNewIpHostname").append(
+                        '\
+                        <div class="alert alert-danger" style="width: 100%; margin-top: 10px" role="alert">' +
+                        errText +
+                        "</div>"
+                    );
+                }
             });
     });
 
@@ -147,144 +201,88 @@ $("#tableManagement").on("click", ".edit-system", function () {
                 let status = err.status;
             });
     });
-});
 
-$("fileServer").change(function () {
+    $("#btnUploadFileServer").click(function () {
+        let fileInput = document.getElementById('fileServer');
+        let file = fileInput.files[0];
+        if (file) {
+            let formData = new FormData();
+            formData.append('file', file);
+            console.log(systemId)
+            formData.append('systemId', systemId);
 
-})
+            $("#uploadFileServerDiv").empty();
 
-$(".delete-file").click(function () {
-    $("#modalEditFileInfo").empty();
-    var currentRow = $(this).closest("tr");
-    var resId = currentRow.find("td:eq(0)").text();
-    $("#modalEditFileInfo").append(showModalConfirmDeleteFile(resId));
-    $("#btnConfirmDelete").click(function () {
-        $("#btnConfirmDelete").removeAttr("data-dismiss");
-        $("#btnCancel").attr("disabled", "disabled");
-        $("#messageDelete").append(
-            '<div class="spinner-border text-info" role="status"><span class="sr-only">Loading...</span></div>'
-        );
-        $("#modalEditFileInfo").attr("disabled", "disabled");
-        $.ajax({
-            url: "/file/delete",
-            type: "post",
-            data: {
-                resId: resId,
-            },
-        })
-            .done(function (res, status, xhr) {
-                $("#tableFileUpload").empty();
-                $("#btnConfirmDelete").attr("data-dismiss", "modal");
-                $("#btnCancel").removeAttr("disabled");
-                $("#modalEditFileInfo").removeAttr("disabled");
-                $("#messageDelete").empty();
-                $("#tableFileUpload").empty();
-                $.ajax({
-                    url: "/file/search",
-                    type: "get",
-                    data: {
-                        key: "",
-                        from: start,
-                        to: end,
-                    },
-                    success: function (res) {
-                        $("#tableFileUpload").append(res);
-                    },
-                });
-            })
-            .fail((err) => {
-                expireToken(err.status);
-                $("#btnUpdateUser").attr("data-dismiss", "modal");
+            $.ajax({
+                url: '/file-upload/upload',
+                type: 'POST',
+                data: formData,
+                body: {
+                    systemId: systemId
+                },
+                processData: false,
+                contentType: false,
+                success: function (data) {
+                    console.log(data);
+                    $("#uploadFileServerDiv").append(data);
+                },
+                error: function (xhr, status, error) {
+                    console.error(error);
+                }
             });
+        } else {
+            console.error('No file selected');
+        }
     });
-});
 
-$(".download-file").click(function () {
-    $("#modalEditFileInfo").empty();
-    var currentRow = $(this).closest("tr");
-    var fileName = currentRow.find("td:eq(2)").text();
-    $("#modalEditFileInfo").append(
-        showModalConfirmRedownloadFileUpload(fileName)
-    );
-    $("#btnConfirmDownloadFileUpload").click(function () {
-        $("#btnConfirmDownloadFileUpload").removeAttr("data-dismiss");
-        $("#btnCancel").attr("disabled", "disabled");
-        $("#messageReDownloadFileUpload").append(
-            '<div class="spinner-border text-info" role="status"><span class="sr-only">Loading...</span></div>'
-        );
-        $("#modalEditFileInfo").attr("disabled", "disabled");
+    $("#btnDownloadFileServer").click(function () {
         $.ajax({
             xhrFields: {
                 responseType: "arraybuffer",
             },
             url: "/file-upload/download",
-            type: "POST",
+            type: "GET",
             data: {
-                fileName: fileName,
-            },
-            statusCode: {
-                404: function () {
-                    $("#messageReDownloadFileUpload").empty();
-                    $("#messageReDownloadFileUpload").append(
-                        '\
-                        <div class="alert alert-warning" role="alert">Not found this file in system.</div>'
-                    );
-                },
+                systemId: systemId,
             },
         })
             .done(function (res, status, xhr) {
-                let fileName = extractFileNameFromXhr(xhr);
-                res && saveFile(fileName, "application/zip", res);
-                $("#btnConfirmDownloadFileUpload").attr("data-dismiss", "modal");
-
-                $("#btnCancel").removeAttr("disabled");
-                $("#modalEditFileInfo").removeAttr("disabled");
-                $("#messageReDownloadFileUpload").empty();
-                $("#messageReDownloadFileUpload").append(
-                    '\
-                  <div class="alert alert-success" role="alert">Download successfully</div>'
-                );
-                $("#tableFileUpload").empty();
-                $.ajax({
-                    url: "/file/search",
-                    type: "get",
-                    data: {
-                        key: "",
-                        from: start,
-                        to: end,
-                    },
-                    success: function (res) {
-                        $("#tableFileUpload").append(res);
-                    },
-                });
             })
             .fail((xhr, status, errorThrow) => {
-                $("#btnCancel").removeAttr("disabled");
-                $("#btnConfirmDownloadFileUpload").removeAttr("disabled");
-                $("#messageReDownloadFileUpload").empty();
-                expireToken(xhr.status);
             });
     });
 });
-function openDetailsModal(id) {
-    fetch(`/details/${id}`)
-        .then(response => response.json())
-        .then(data => {
-            let detailsTableBody = document.getElementById('details-table-body');
-            detailsTableBody.innerHTML = '';
-            data.forEach(detail => {
-                let tr = document.createElement('tr');
-                tr.innerHTML = `
-          <td>${detail.col1}</td>
-          <td>${detail.col2}</td>
-          <td>${detail.col3}</td>
-          <td>${detail.col4}</td>
-          <td>${detail.col5}</td>
-          <td>${detail.col5}</td>
-        `;
-                detailsTableBody.appendChild(tr);
-            });
-            $('#details-modal').modal('show');
-        })
-        .catch(error => console.error('Error:', error));
-}
+
+$("#fileServer").change(function () {
+
+})
+
+$("#btnUploadFile").click(function () {
+    let fileInput = document.getElementById('fileUpload');
+    let file = fileInput.files[0];
+    if (file) {
+        let formData = new FormData();
+        formData.append('file', file);
+
+        $("#tableManagement").empty();
+
+        $.ajax({
+            url: '/upload',
+            type: 'POST',
+            data: formData,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                console.log(data);
+                $("#tableManagement").append(data);
+                $("#btnUpdateUser").attr("data-dismiss", "modal");
+            },
+            error: function (xhr, status, error) {
+                console.error(error);
+            }
+        });
+    } else {
+        console.error('No file selected');
+    }
+});
+

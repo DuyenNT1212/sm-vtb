@@ -54,22 +54,49 @@ async function getUserByUsername(username) {
   ));
 }
 
-async function getAllRoles() {
+async function getSystemByName(username) {
   let pro = new Promise((resolve, reject) => {
-    let sql = "select * from role";
-    db.query(sql, (err, data) => {
-      if (err) throw err;
+    let sql =
+        "select * from SM_SYSTEM where NAME = ? ";
+    db.query(sql, [username], (err, data) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
       resolve(data);
     });
   });
 
   return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason); // Error!
-    }
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
+async function getIpHostnameByIpHostname(sysId, ip, hostname) {
+  let pro = new Promise((resolve, reject) => {
+    let sql =
+        "select * from SM_IP_HOSTNAME where SYSTEM_ID = ? and IP = ? and HOSTNAME = ?";
+    db.query(sql, [sysId, ip, hostname], (err, data) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      resolve(data);
+    });
+  });
+
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
   ));
 }
 
@@ -147,6 +174,33 @@ async function getAllSystem() {
   ));
 }
 
+async function getAllSystemFilter(sysName, ip, hostname) {
+
+  let pro = new Promise((resolve, reject) => {
+    let sql = "select distinct T1.* from sm_system T1\n" +
+        "right join sm_ip_hostname T2 on T1.id = T2.system_id\n" +
+        "where case when T1.name != '' then T1.name like ? else true end\n" +
+        "and case when T2.IP != '' then T2.IP like ? else true end\n" +
+        "and case when T2.hostname != '' then T2.hostname like ? else true end\n" +
+        "order by T1.created_time desc";
+    db.query(sql, [`%${sysName}%`, `%${ip}%`, `%${hostname}%`], (err, data) => {
+      if (err) throw err;
+      for (let i = 0; i < data.length; i++) {
+        data[i].created_time = moment(data[i].created_time).format("DD/MM/YYYY HH:mm:ss");
+      }
+      resolve(data);
+    });
+  });
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
 async function getDetailBySystemId(systemId) {
   let pro = new Promise((resolve, reject) => {
     let sql = "select * from sm_ip_hostname where system_id = ? order by created_time desc";
@@ -168,113 +222,6 @@ async function getDetailBySystemId(systemId) {
   ));
 }
 
-async function getLogByUsername(username) {
-  let pro = new Promise((resolve, reject) => {
-    let sql = "select * from log_download where by_user = ? order by time desc";
-    db.query(sql, [username], (err, data) => {
-      if (err) throw err;
-      listUser = data;
-      for (let i = 0; i < data.length; i++) {
-        data[i].time = moment(data[i].time).format("DD/MM/YYYY HH:mm:ss");
-      }
-      resolve(data);
-    });
-  });
-  return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason); // Error!
-    }
-  ));
-}
-
-async function getAllAccountCredential() {
-  let pro = new Promise((resolve, reject) => {
-    let sql = "select * from master_credentials order by created_at desc";
-    db.query(sql, (err, data) => {
-      if (err) throw err;
-      listUser = data;
-      for (let i = 0; i < data.length; i++) {
-        data[i].created_at = moment(data[i].created_at).format(
-          "DD/MM/YYYY HH:mm:ss"
-        );
-      }
-      resolve(data);
-    });
-  });
-  return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason);
-    }
-  ));
-}
-
-async function addAccountCredential(email, password, byUser) {
-  let pro = new Promise((resolve, reject) => {
-    let sql =
-      "insert into master_credentials (email, password, by_user) values (?, ?, ?)";
-    db.query(sql, [email, password, byUser], (err, data) => {
-      if (err) throw err;
-      resolve(data);
-    });
-  });
-  return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason);
-    }
-  ));
-}
-
-async function getHistoryFingerprint() {
-  let pro = new Promise((resolve, reject) => {
-    let sql = "select * from fingerprint order by created_at desc";
-    db.query(sql, (err, data) => {
-      if (err) throw err;
-      listUser = data;
-      for (let i = 0; i < data.length; i++) {
-        data[i].created_at = moment(data[i].created_at).format(
-          "DD/MM/YYYY HH:mm:ss"
-        );
-      }
-      resolve(data);
-    });
-  });
-  return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason);
-    }
-  ));
-}
-
-async function changeFingerprint(fingerprint, byUser) {
-  let pro = new Promise((resolve, reject) => {
-    let sql = "insert into fingerprint (value, by_user) values (?, ?)";
-    db.query(sql, [fingerprint, byUser], (err, data) => {
-      if (err) throw err;
-      resolve(data);
-    });
-  });
-  return (res = pro.then(
-    (val) => {
-      return val;
-    },
-    (reason) => {
-      console.error(reason);
-    }
-  ));
-}
-
 async function addSystem(name, username) {
   let pro = new Promise((resolve, reject) => {
     let sql = "insert into sm_system(name, username) values (?, ?)";
@@ -288,7 +235,7 @@ async function addSystem(name, username) {
     );
   });
 
-  let listUser = getAllSystem();
+  let listUser = getSystemByName(name);
 
   return (res = pro.then(
     (val) => {
@@ -297,6 +244,54 @@ async function addSystem(name, username) {
     (reason) => {
       console.error(reason); // Error!
     }
+  ));
+}
+
+async function addFileSystem(sysId, fileName, content) {
+  let pro = new Promise((resolve, reject) => {
+    let sql = "insert into SM_SERVER_FILE(system_id, file_name, content) values (?, ?, ?)";
+    db.query(
+        sql,
+        [sysId, fileName, content],
+        (err, data) => {
+          if (err) throw err;
+          resolve(data);
+        }
+    );
+  });
+
+  let listUser = getFileSystemBySysId(sysId);
+
+  return (res = pro.then(
+      (val) => {
+        return val.length != 0 ? listUser : null;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
+async function getFileSystemBySysId(sysId) {
+  let pro = new Promise((resolve, reject) => {
+    let sql =
+        "select * from SM_SERVER_FILE where SYSTEM_ID = ? ";
+    db.query(sql, [sysId], (err, data) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      resolve(data);
+    });
+  });
+
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
   ));
 }
 
@@ -374,22 +369,37 @@ async function deleteIpHostname(id) {
   ));
 }
 
+async function deleteFileServer(id) {
+  let pro = new Promise((resolve, reject) => {
+    let sqlDelSysIpHost = "delete from SM_SERVER_FILE where system_id = ?"
+    db.query(sqlDelSysIpHost, [id], (err, data) => {
+      if (err) throw err;
+      resolve(data);
+    });
+  });
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
 module.exports = {
-  getAllUser,
   getUserByUsername,
-  getAllRoles,
-  addRoleUser,
-  saveLogDownload,
   getAccountInfoFromToken,
   getAllSystem,
-  getLogByUsername,
-  getAllAccountCredential,
-  addAccountCredential,
-  getHistoryFingerprint,
-  changeFingerprint,
   addSystem,
   deleteSys,
   editSystem,
   getDetailBySystemId,
-  deleteIpHostname
+  deleteIpHostname,
+  getSystemByName,
+  getIpHostnameByIpHostname,
+  getAllSystemFilter,
+  deleteFileServer,
+  addFileSystem,
+  getFileSystemBySysId
 };

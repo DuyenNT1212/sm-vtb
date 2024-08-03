@@ -85,30 +85,7 @@ router.get(
             data.push(d)
         }
 
-        const workbook = xlsx.utils.book_new();
-        const worksheet = xlsx.utils.json_to_sheet(data);
-
-        xlsx.utils.book_append_sheet(workbook, worksheet, 'Data');
-        // const buffer = xlsx.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-        //
-        // // Send the buffer to the client
-        // res.setHeader('Content-Disposition', 'attachment; filename="data.xlsx"');
-        // res.setHeader('Content-Type', 'application/octet-stream');
-        // res.send(buffer);
-
-        const filePath = path.join(__dirname, 'output.xlsx');
-
-        xlsx.writeFile(workbook, filePath);
-
-        // Send the file to the client
-        res.download(filePath, 'data.xlsx', (err) => {
-            if (err) {
-                console.error(err);
-                res.status(500).send('Error downloading the file');
-            } else {
-                // fs.unlinkSync(filePath);
-            }
-        });
+        res.json(data);
     }
 );
 
@@ -247,7 +224,7 @@ router.post('/file-upload/upload', upload.single('file'), async (req, res) => {
         return res.status(400).send('No file uploaded');
     }
 
-    console.log(req.file.originalname, req.file.buffer.toString('binary'), req.body.systemId)
+    // console.log(req.file.originalname, req.file.buffer.toString('binary'), req.body.systemId)
     await service.deleteFileServer(req.body.systemId)
     await service.addFileSystem(req.body.systemId, req.file.originalname, req.file.buffer.toString('binary'))
 

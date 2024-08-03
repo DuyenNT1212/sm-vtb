@@ -287,23 +287,27 @@ $("#btnDownloadFile").click(function () {
         },
     })
         .done(function (res, status, xhr) {
-            saveAs(res, 'data.xlsx');
-            // res && saveFile('data.xlsx', "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64", res);
+            const wb = XLSX.utils.book_new();
+            const ws = XLSX.utils.json_to_sheet(res);
+            XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+            const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+            saveAs(new Blob([wbout], { type: 'application/octet-stream' }), 'data.xlsx');
         })
         .fail((err) => {
             let status = err.status;
         });
 });
 
-function saveFile(fileName, type, data) {
-    return saveAs(new Blob([data], { type: type }), fileName);
-}
+$("#downloadTemplate").click(function () {
+    const fileUrl = '/asset/Sample_template.xlsx';
 
-const extractFileNameFromXhr = (xhr) => {
-    return xhr.getResponseHeader("Content-Disposition")
-        ? xhr
-            .getResponseHeader("Content-Disposition")
-            .split("=")[1]
-            .slice(1, -1)
-        : "document.zip";
-};
+    fetch(fileUrl)
+        .then(response => response.blob())
+        .then(blob => {
+            // Ensure the correct MIME type is used for Excel files
+            const file = new Blob(blob, { type: 'application/octet-stream' });
+            // Use FileSaver.js to save the file
+            saveAs(file, 'Sample_template.xlsx');
+        })
+        .catch(error => console.error('Error fetching the file:', error));
+});

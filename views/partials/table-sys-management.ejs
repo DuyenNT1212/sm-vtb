@@ -18,8 +18,12 @@
             <td style="width: 7%;"><%= i + 1 %></td>
             <td style="width: 15%;"><%= data[i].code %></td>
             <td style="width: 15%;"><%= data[i].name %></td>
-            <td style="width: 13%;"><%= data[i].ipProdShort %></td>
-            <td style="width: 13%;"><%= data[i].ipPpeShort %></td>
+            <td style="width: 13%;">
+                <p data-toggle="tooltip" data-placement="top" title="<%= data[i].ipProd %>"><%= data[i].ipProdShort %></p>
+            </td>
+            <td style="width: 13%;">
+                <p data-toggle="tooltip" data-placement="top" title="<%= data[i].ipPpe %>"><%= data[i].ipPpeShort %></p>
+            </td>
             <td style="width: 13%;"><%= data[i].description %></td>
             <td style="width: 15%;"><%= data[i].username %></td>
             <td style="width: 20%;">

@@ -1,3 +1,6 @@
+$("#logout").click(function () {
+    window.location.replace("/login");
+});
 $("#searchBtn").click(function () {
     $("#tableManagement").empty();
     let sysName = $("#sysNameSearch").val().trim();
@@ -32,8 +35,8 @@ $(".close-modal").click(function () {
 
 $("#btnAddNew").click(function () {
     let newSystem = $("#newSystemName").val().trim();
-    let newSystemCode = $("#newSystemNameCode").val().trim();
-    console.log(newSystem, newSystemCode)
+    let newSystemCode = $("#newSystemCode").val().trim();
+    let description = $("#description").val().trim();
     $("#warningAddNewSystem").empty();
     $.ajax({
         url: "/system/add",
@@ -41,6 +44,7 @@ $("#btnAddNew").click(function () {
         data: {
             name: newSystem,
             code: newSystemCode,
+            description: description,
         },
         statusCode: {
             409: function () {
@@ -79,12 +83,12 @@ $("#btnAddNew").click(function () {
 })
 
 $("#tableManagement").on("click", ".delete-system", function () {
-    $("#modalEditUser").empty();
+    $("#modalDeleteUser").empty();
     let currentRow = $(this).closest("tr");
-    let id = currentRow.find("td:eq(5)").text();
-    let name = currentRow.find("td:eq(1)").text();
+    console.log('currentRow', currentRow)
+    let id = currentRow.find("td:eq(8)").text();
 
-    $("#modalEditUser").append(showModalDeleteUser(name));
+    $("#delete-modal").modal('show');
 
     $("#btnDeleteUser").click(function () {
         $("#tableManagement").empty();
@@ -98,37 +102,19 @@ $("#tableManagement").on("click", ".delete-system", function () {
             .done(function (res, status, xhr) {
                 $("#tableManagement").append(res);
                 $("#btnUpdateUser").attr("data-dismiss", "modal");
+                $("#delete-modal").modal('hide');
             })
             .fail((err) => {
                 let status = err.status;
+                $("#delete-modal").modal('hide');
             });
     });
 });
 
-function showModalDeleteUser(name) {
-    let html =
-        '\
-      <div class="modal-dialog">\
-        <div class="modal-content">\
-          <div class="modal-body">\
-            <h4>Bạn có muốn xoá hệ thống <b>' +
-        name +
-        '</b> ?</h4>\
-          </div>\
-          <div class="modal-footer justify-content-center">\
-            <button id="btnDeleteUser" type="button" class="btn btn-info" data-dismiss="modal">Yes</button>\
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>\
-          </div>\
-        </div>\
-      </div>';
-    return html;
-}
-
 $("#tableManagement").on("click", ".edit-system", function () {
     $("#tableIpHostName").empty();
     let currentRow = $(this).closest("tr");
-    let systemId = currentRow.find("td:eq(5)").text();
-    let name = currentRow.find("td:eq(1)").text();
+    let systemId = currentRow.find("td:eq(8)").text();
 
     $("#details-modal").modal('show');
     $("#warningAddNewIpHostname").empty();
@@ -166,13 +152,11 @@ $("#tableManagement").on("click", ".edit-system", function () {
         })
             .done(function (res, status, xhr) {
                 $("#warningAddNewIpHostname").empty();
-                console.log('res', res, status)
                 $("#tableIpHostName").append(res);
                 $("#btnUpdateUser").attr("data-dismiss", "modal");
             })
             .fail((err) => {
                 let status = err.status;
-                console.log(status)
                 if (status === 409) {
                     errText = `Thông tin đã tồn tại!`;
                     $("#warningAddNewIpHostname").append(
@@ -187,7 +171,7 @@ $("#tableManagement").on("click", ".edit-system", function () {
 
     $("#tableIpHostName").on("click", ".delete-ip-hostname", function () {
         let currentRow = $(this).closest("tr");
-        let id = currentRow.find("td:eq(6)").text();
+        let id = currentRow.find("td:eq(7)").text();
 
         $("#tableIpHostName").empty();
         $.ajax({
@@ -213,7 +197,6 @@ $("#tableManagement").on("click", ".edit-system", function () {
         if (file) {
             let formData = new FormData();
             formData.append('file', file);
-            console.log(systemId)
             formData.append('systemId', systemId);
 
             $("#uploadFileServerDiv").empty();
@@ -277,7 +260,6 @@ $("#btnUploadFile").click(function () {
             processData: false,
             contentType: false,
             success: function (data) {
-                console.log(data);
                 $("#tableManagement").append(data);
                 $("#btnUpdateUser").attr("data-dismiss", "modal");
             },
@@ -290,3 +272,38 @@ $("#btnUploadFile").click(function () {
     }
 });
 
+$("#btnDownloadFile").click(function () {
+    let sysName = $("#sysNameSearch").val().trim();
+    let ip = $("#ipSearch").val().trim();
+    let hostname = $("#hostnameSearch").val().trim();
+    console.log(sysName)
+    $.ajax({
+        url: "/system/download",
+        type: "get",
+        data: {
+            sysName: sysName,
+            ip: ip,
+            hostname: hostname
+        },
+    })
+        .done(function (res, status, xhr) {
+            saveAs(res, 'data.xlsx');
+            // res && saveFile('data.xlsx', "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64", res);
+        })
+        .fail((err) => {
+            let status = err.status;
+        });
+});
+
+function saveFile(fileName, type, data) {
+    return saveAs(new Blob([data], { type: type }), fileName);
+}
+
+const extractFileNameFromXhr = (xhr) => {
+    return xhr.getResponseHeader("Content-Disposition")
+        ? xhr
+            .getResponseHeader("Content-Disposition")
+            .split("=")[1]
+            .slice(1, -1)
+        : "document.zip";
+};

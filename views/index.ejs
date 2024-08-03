@@ -29,22 +29,26 @@
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">Hostname</span>
                             </div>
-                            <input id="hostnameSearch" type="text" class="form-control date-picker" aria-label="Username"
+                            <input id="hostnameSearch" type="text" class="form-control date-picker"
+                                   aria-label="Username"
                                    aria-describedby="basic-addon1">
                         </div>
                     </div>
                     <div class="col-md-2">
-                        <button id="searchBtn" class="btn btn-info">Tìm kiếm</button>
+                        <button id="searchBtn" class="btn btn-outline-success">Tìm kiếm</button>
                     </div>
                     <div class="col-md-2">
-                        <button id="btnOpenModalAdd" class="btn btn-info">Thêm mới</button>
+                        <button id="btnOpenModalAdd" class="btn btn-success">Thêm mới</button>
                     </div>
                     <div class="col-md-4" style="margin-top: 10px">
                         <input type="file" id="fileUpload" class="form-control" accept=".xlsx">
-                        <a href='asset/Sample_template.xlsx' download="Sample_template.xlsx">Tải file mẫu tại đây</a>
+                        <a href='./Sample_template.xlsx' download="Sample_template.xlsx">Tải file mẫu tại đây</a>
                     </div>
                     <div class="col-md-2" style="margin-top: 10px">
                         <button id="btnUploadFile" class="btn btn-info">Upload file</button>
+                    </div>
+                    <div class="col-md-2" style="margin-top: 10px">
+                        <button id="btnDownloadFile" class="btn btn-outline-info">Download file</button>
                     </div>
                 </div>
 
@@ -54,9 +58,12 @@
                             <thead class="thead-light">
                             <tr>
                                 <th>STT</th>
+                                <th>Mã hệ thống</th>
                                 <th>Tên hệ thống</th>
+                                <th>IP (PROD)</th>
+                                <th>IP (PPE/UAT)</th>
+                                <th>Mô tả</th>
                                 <th>Người quản lý</th>
-                                <th>Thời gian</th>
                                 <th>Action</th>
                                 <th style="display: none">Action</th>
                             </tr>
@@ -64,16 +71,19 @@
                             <tbody>
                             <% for (var i = 0; i < data.length; i++) { %>
                                 <tr>
-                                    <td style="width: 10%;"><%= i %></td>
-                                    <td style="width: 25%;"><%= data[i].name %></td>
-                                    <td style="width: 20%;"><%= data[i].username %></td>
-                                    <td style="width: 25%;"><%= data[i].created_time %></td>
+                                    <td style="width: 7%;"><%= i + 1 %></td>
+                                    <td style="width: 13%;"><%= data[i].code %></td>
+                                    <td style="width: 15%;"><%= data[i].name %></td>
+                                    <td style="width: 13%;"><%= data[i].ipProdShort %></td>
+                                    <td style="width: 13%;"><%= data[i].ipPpeShort %></td>
+                                    <td style="width: 13%;"><%= data[i].description %></td>
+                                    <td style="width: 15%;"><%= data[i].username %></td>
                                     <td style="width: 20%;">
                                         <button class="btn btn-default edit-system" data-toggle="modal"
                                                 data-target="#modalEditUser" data-backdrop="static"><i
                                                     class="fas fa-edit"></i></button>
                                         <button class="btn btn-default delete-system" data-toggle="modal"
-                                                data-target="#modalEditUser" data-backdrop="static"><i
+                                                data-target="#modalDeleteUser" data-backdrop="static"><i
                                                     class="far fa-trash-alt "></i></button>
                                     </td>
                                     <td style="width: 0; display: none"><%= data[i].id %></td>
@@ -110,6 +120,10 @@
                     <div class="form-group">
                         <label for="name">Tên hệ thống</label>
                         <input id="newSystemName" type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Mô tả</label>
+                        <input id="description" type="text" class="form-control" name="name">
                     </div>
                     <button id="btnAddNew" class="btn btn-primary">Add</button>
                     <div id="warningAddNewSystem"></div>
@@ -169,7 +183,8 @@
                         <input id="fileServer" type="file" class="form-control" accept=".docx">
                     </div>
                     <div class="form-group col-md-3">
-                        <button class="btn btn-outline-primary" id="btnUploadFileServer" style="position: relative; top: 33px">
+                        <button class="btn btn-outline-primary" id="btnUploadFileServer"
+                                style="position: relative; top: 33px">
                             Upload
                         </button>
                     </div>
@@ -177,6 +192,18 @@
                 <div id="uploadFileServerDiv">
 
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-body"><h4>Bạn có muốn xoá hệ thống này ?</h4></div>
+            <div class="modal-footer justify-content-center">
+                <button id="btnDeleteUser" type="button" class="btn btn-info" data-dismiss="modal">Yes</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">No</button>
             </div>
         </div>
     </div>

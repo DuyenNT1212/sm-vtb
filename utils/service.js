@@ -77,6 +77,29 @@ async function getSystemByName(username) {
   ));
 }
 
+async function getSystemByCode(code) {
+  let pro = new Promise((resolve, reject) => {
+    let sql =
+        "select * from SM_SYSTEM where CODE = ? ";
+    db.query(sql, [code.trim()], (err, data) => {
+      if (err) {
+        console.log(err);
+        throw err;
+      }
+      resolve(data);
+    });
+  });
+
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
 async function getIpHostnameByIpHostname(sysId, ip, hostname) {
   let pro = new Promise((resolve, reject) => {
     let sql =
@@ -173,6 +196,26 @@ async function getAllSystem() {
     }
   ));
 }
+async function getAllSystemDetail() {
+  let pro = new Promise((resolve, reject) => {
+    let sql = "select T1.id, name, username, code, T1.description, IP, hostname, note, type from SM_SYSTEM T1 left join SM_IP_HOSTNAME T2 on T1.id = T2.system_id order by T1.id";
+    db.query(sql, (err, data) => {
+      if (err) throw err;
+      // for (let i = 0; i < data.length; i++) {
+      //   data[i].created_time = moment(data[i].created_time).format("DD/MM/YYYY HH:mm:ss");
+      // }
+      resolve(data);
+    });
+  });
+  return (res = pro.then(
+    (val) => {
+      return val;
+    },
+    (reason) => {
+      console.error(reason); // Error!
+    }
+  ));
+}
 
 async function getAllSystemFilter(sysName, ip, hostname) {
 
@@ -222,12 +265,12 @@ async function getDetailBySystemId(systemId) {
   ));
 }
 
-async function addSystem(name, code, username) {
+async function addSystem(name, code, description, username) {
   let pro = new Promise((resolve, reject) => {
-    let sql = "insert into sm_system(name, code, username) values (?, ?)";
+    let sql = "insert into sm_system(name, code, description, username) values (?, ?, ?, ?)";
     db.query(
       sql,
-      [name, username],
+      [name, code, description, username],
       (err, data) => {
         if (err) throw err;
         resolve(data);
@@ -391,12 +434,14 @@ module.exports = {
   getUserByUsername,
   getAccountInfoFromToken,
   getAllSystem,
+  getAllSystemDetail,
   addSystem,
   deleteSys,
   editSystem,
   getDetailBySystemId,
   deleteIpHostname,
   getSystemByName,
+  getSystemByCode,
   getIpHostnameByIpHostname,
   getAllSystemFilter,
   deleteFileServer,

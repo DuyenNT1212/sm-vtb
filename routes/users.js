@@ -13,7 +13,6 @@ router.get("/login", function (req, res, next) {
 
 router.post("/login", async (req, res) => {
   let body = req.body;
-  console.log("bod", body);
   let user = await service.getUserByUsername(body.username);
   if (!user || user.length === 0) {
     res.status(400).send("Username or password is wrong");
@@ -33,8 +32,6 @@ router.post("/login", async (req, res) => {
       var response = {
         token: token,
       };
-
-      console.log("Response: " + JSON.stringify(response));
 
       res.cookie("token", response["token"], {
         maxAge: 90000000,

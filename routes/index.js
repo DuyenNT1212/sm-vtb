@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 
 const app = express();
+const bcrypt = require("bcryptjs");
 const storage = multer.memoryStorage();
 const upload = multer({ dest: __dirname + '/uploads/' });
 
@@ -20,7 +21,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use("files", express.static(__dirname + "files"));
 
 /* GET home page. */
-router.get("/", async function (req, res, next) {
+router.get("/", authUser, async function (req, res, next) {
     let info = service.getAccountInfoFromToken(req);
     let data = await service.getAllSystem();
     await mappingDetailIpSystem(data);
@@ -272,5 +273,31 @@ router.get('/file-upload/download', async (req, res) => {
         return res.download(ipHostnameDb)
     }
 });
+
+router.get("/logout", authUser, async (req, res, next) => {
+    res.clearCookie("token");
+    res.redirect("/login");
+});
+
+router.post(
+    "/add-user",
+    async (request, response) => {
+        let body = request.body;
+        if (!body.username || !body.fullname || !body.password) {
+            return response.status(400).end();
+        }
+        let checkUsernameExist = await service.checkUsernameExistFunc(body.username);
+
+        if (checkUsernameExist) return response.status(409).send("User is exist");
+
+        const salt = await bcrypt.genSalt(10);
+        const hashPassword = await bcrypt.hash(body.password, salt);
+
+        await service.addUser(body.username, body.fullname, hashPassword, salt)
+
+        response.status(200);
+    }
+);
+
 
 module.exports = router;

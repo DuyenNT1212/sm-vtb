@@ -1,43 +1,28 @@
 const e = require('express');
 const jwt = require('jsonwebtoken');
 const tokenAction = require('../utils/token');
+const service = require('../utils/service')
 const JWT_SECRET = require('../credentials').JWT_SECRET;
 
-function authUser(req, res, next) {
-  try {
-    const token = req.cookies['token'] || ''; // prevent null
-    const decodedToken = jwt.verify(token, JWT_SECRET);
-    // console.log('Decoded token: ' + JSON.stringify(decodedToken));
+async function authUser(req, res, next) {
+    try {
+        const token = req.cookies['token'] || ''; // prevent null
+        const decodedToken = jwt.verify(token, JWT_SECRET);
 
-    const username = decodedToken.username;
-    const expiredTime = decodedToken.exp;
-    if (username || expiredTime * 1000 < Date.now()) {
-      next();
-    } else {
-      res.redirect('/login');
-    }
-  } catch {
-    res.redirect('/login');
-  }
-};
+        const username = decodedToken.username;
+        let user = await service.getUserByUsername(username);
+        const expiredTime = decodedToken.exp;
 
-function authRole(role) {
-    return (req, res, next) => {
-        try {
-            const token = req.cookies['token'] || '';
-            const decodedToken = jwt.verify(token, JWT_SECRET);
-            if (decodedToken.role === role) {
-                next();
-            } else {
-                res.status(403).end();
-            }
-        } catch {
-            res.status(403).end();
+        if (user.length > 0 && expiredTime * 1000 > Date.now()) {
+            next();
+        } else {
+            res.redirect('/login');
         }
+    } catch {
+        res.redirect('/login');
     }
-  };
+}
 
 module.exports = {
     authUser,
-    authRole
 }

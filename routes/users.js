@@ -1,6 +1,6 @@
-var express = require("express");
-var router = express.Router();
-var service = require("../utils/service");
+let express = require("express");
+let router = express.Router();
+let service = require("../utils/service");
 
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -17,19 +17,18 @@ router.post("/login", async (req, res) => {
   if (!user || user.length === 0) {
     res.status(400).send("Username or password is wrong");
   } else {
-    const checkPassword = true;
-
+    const checkPassword = await bcrypt.compare(body.password, user[0].password);
     if (!checkPassword) {
       res.status(400).send("Username or password is wrong");
     } else {
       const token = jwt.sign(
-        { username: body.username, role: user[0].role_name },
+        { username: body.username },
         JWT_SECRET,
         {
-          expiresIn: 60 * 60 * 60 * 10000,
+          expiresIn: 8 * 60 * 60,
         }
       );
-      var response = {
+      let response = {
         token: token,
       };
 
@@ -37,6 +36,7 @@ router.post("/login", async (req, res) => {
         maxAge: 90000000,
         httpOnly: true,
       });
+      console.log(response)
       res.status(200).send(response);
     }
   }

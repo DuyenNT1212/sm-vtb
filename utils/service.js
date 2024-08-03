@@ -430,7 +430,52 @@ async function deleteFileServer(id) {
   ));
 }
 
+async function addUser(username, fullname, hashPassword, salt) {
+  let pro = new Promise((resolve, reject) => {
+    let sqlAddUser =
+        "insert into sm_user(username, fullname, password, salt)\
+                      values (?, ?, ?, ?)";
+    db.query(
+        sqlAddUser,
+        [username, fullname, hashPassword, salt],
+        (err, data) => {
+          if (err) throw err;
+          resolve(data);
+        }
+    );
+  });
+  return (res = pro.then(
+      (val) => {
+        return val;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
+checkUsernameExistFunc = async (username) => {
+  let pro = new Promise((resolve, reject) => {
+    let query = "select * from sm_user where username = ?";
+    db.query(query, [username], function (err, result) {
+      if (err) throw err;
+      resolve(result);
+    });
+  });
+
+  return (res = pro.then(
+      (val) => {
+        return val.length != 0 ? true : false;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+};
+
 module.exports = {
+  addUser,
+  checkUsernameExistFunc,
   getUserByUsername,
   getAccountInfoFromToken,
   getAllSystem,

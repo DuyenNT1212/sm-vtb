@@ -2,47 +2,48 @@
 <html lang="en">
 
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>ExpressJS</title>
-  <link rel="stylesheet" href="css/bootstrap.min.css">
-  <link rel="stylesheet" href="style-login.css">
-  <link rel="stylesheet" href="all.css">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ExpressJS</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="style-login.css">
+    <link rel="stylesheet" href="css/all.css">
 </head>
 
 <body>
-  <div class="container">
+<div class="container">
     <div class="d-flex justify-content-center h-100">
-      <div class="card">
-        <div class="card-header">
-          <h3>Log In</h3>
+        <div class="card">
+            <div class="card-header">
+                <h3>Log In</h3>
+            </div>
+            <div id="cardLogin" class="card-body">
+                <div class="input-group form-group">
+                    <div class="input-group-prepend" id=inputGroupPrepend>
+                        <span class="input-group-text"><i class="fas fa-user"></i></span>
+                    </div>
+                    <input id="username" type="text" class="form-control" placeholder="username" name="username"
+                           aria-describedby="inputGroupPrepend" required>
+
+                </div>
+                <div class="input-group form-group">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text"><i class="fas fa-key"></i></span>
+                    </div>
+                    <input id="password" type="password" class="form-control" placeholder="password" name="password"
+                           required>
+                </div>
+                <div class="form-group button">
+                    <input id="btnLogin" type="submit" value="Login" class="btn float-left login_btn">
+                </div>
+                <div id="warningErr"></div>
+            </div>
         </div>
-        <div id="cardLogin" class="card-body">
-            <div class="input-group form-group">
-              <div class="input-group-prepend" id=inputGroupPrepend>
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
-              </div>
-              <input id="username" type="text" class="form-control" placeholder="username" name="username" aria-describedby="inputGroupPrepend" required>
-              
-            </div>
-            <div class="input-group form-group">
-              <div class="input-group-prepend">
-                <span class="input-group-text"><i class="fas fa-key"></i></span>
-              </div>
-              <input id="password" type="password" class="form-control" placeholder="password" name="password" required>
-            </div>
-            <div class="form-group button">
-              <input id="btnLogin" type="submit" value="Login" class="btn float-left login_btn">
-            </div>
-        </div>
-      </div>
     </div>
-  </div>
-  <script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/simple-datatables@latest" crossorigin="anonymous"></script>
-  <script src="script-login.js"></script>
+</div>
+<script type="text/javascript" src="js/jquery-3.6.0.min.js"></script>
+<script src="js/bootstrap.bundle.min.js" crossorigin="anonymous"></script>
+<script src="script-login.js"></script>
 </body>
 
 </html>

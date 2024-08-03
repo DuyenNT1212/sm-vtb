@@ -104,6 +104,10 @@
             <div class="modal-body">
                 <form>
                     <div class="form-group">
+                        <label for="name">Mã hệ thống</label>
+                        <input id="newSystemCode" type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
                         <label for="name">Tên hệ thống</label>
                         <input id="newSystemName" type="text" class="form-control" name="name" required>
                     </div>
@@ -125,6 +129,18 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="type" value="PROD" id="prod" checked>
+                    <label class="form-check-label" for="prod">
+                        Production
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="type" value="PPE/UAT" id="ppeUat">
+                    <label class="form-check-label" for="ppeUat">
+                        PPE / UAT
+                    </label>
+                </div>
                 <div class="form-row">
                     <div class="form-group col-md-3">
                         <label for="newIp">IP</label>

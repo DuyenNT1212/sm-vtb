@@ -32,12 +32,15 @@ $(".close-modal").click(function () {
 
 $("#btnAddNew").click(function () {
     let newSystem = $("#newSystemName").val().trim();
+    let newSystemCode = $("#newSystemNameCode").val().trim();
+    console.log(newSystem, newSystemCode)
     $("#warningAddNewSystem").empty();
     $.ajax({
         url: "/system/add",
         type: "post",
         data: {
             name: newSystem,
+            code: newSystemCode,
         },
         statusCode: {
             409: function () {
@@ -50,7 +53,7 @@ $("#btnAddNew").click(function () {
                 );
             },
             200: function () {
-                text = `Them thanh cong`;
+                text = `Thêm thành công`;
                 $("#warningAddNewSystem").append(
                     '\
                     <div class="alert alert-success" style="width: 100%;" role="alert">' +
@@ -146,6 +149,7 @@ $("#tableManagement").on("click", ".edit-system", function () {
 
     $("#btn-add-new-ip-hostname").click(function () {
         $("#tableIpHostName").empty();
+        let type = $('input[name="type"]:checked').val();
         let newIp = $("#newIp").val().trim();
         let newHostname = $("#newHostname").val().trim();
         let newNote = $("#newNote").val().trim();
@@ -155,6 +159,7 @@ $("#tableManagement").on("click", ".edit-system", function () {
             data: {
                 systemId: systemId,
                 ip: newIp,
+                type: type,
                 hostname: newHostname,
                 note: newNote
             }
@@ -169,7 +174,7 @@ $("#tableManagement").on("click", ".edit-system", function () {
                 let status = err.status;
                 console.log(status)
                 if (status === 409) {
-                    errText = `Thong tin đã tồn tại!`;
+                    errText = `Thông tin đã tồn tại!`;
                     $("#warningAddNewIpHostname").append(
                         '\
                         <div class="alert alert-danger" style="width: 100%; margin-top: 10px" role="alert">' +
@@ -223,7 +228,6 @@ $("#tableManagement").on("click", ".edit-system", function () {
                 processData: false,
                 contentType: false,
                 success: function (data) {
-                    console.log(data);
                     $("#uploadFileServerDiv").append(data);
                 },
                 error: function (xhr, status, error) {

@@ -66,7 +66,7 @@ router.post(
         if (systemDb.length !== 0) {
             return res.status(409).end();
         } else {
-            await service.addSystem(req.body.name, info.username);
+            await service.addSystem(req.body.name, req.body.code, info.username);
             let listSys = await service.getAllSystem(req.body.name, info.username);
             res.render("partials/table-sys-management", {
                 error: "",
@@ -90,7 +90,7 @@ router.post(
                 data: data
             });
         } else {
-            let listSys = await service.editSystem(req.body.systemId, req.body.ip, req.body.hostname, req.body.note);
+            let listSys = await service.editSystem(req.body.systemId, req.body.ip, req.body.hostname, req.body.note, req.body.type);
             console.log('data', listSys)
             res.render("partials/table-ip-hostname", {
                 data: listSys,

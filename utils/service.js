@@ -222,9 +222,9 @@ async function getDetailBySystemId(systemId) {
   ));
 }
 
-async function addSystem(name, username) {
+async function addSystem(name, code, username) {
   let pro = new Promise((resolve, reject) => {
-    let sql = "insert into sm_system(name, username) values (?, ?)";
+    let sql = "insert into sm_system(name, code, username) values (?, ?)";
     db.query(
       sql,
       [name, username],
@@ -295,12 +295,12 @@ async function getFileSystemBySysId(sysId) {
   ));
 }
 
-async function editSystem(systemId, ip, hostname, note) {
+async function editSystem(systemId, ip, hostname, note, type) {
   let pro = new Promise((resolve, reject) => {
-    let sql = "insert into sm_ip_hostname(system_id, ip, hostname, note) values (?, ?, ?, ?)";
+    let sql = "insert into sm_ip_hostname(system_id, ip, hostname, note, type) values (?, ?, ?, ?, ?)";
     db.query(
         sql,
-        [systemId, ip, hostname, note],
+        [systemId, ip, hostname, note, type],
         (err, data) => {
           if (err) throw err;
           resolve(data);

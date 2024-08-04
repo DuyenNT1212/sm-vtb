@@ -38,12 +38,12 @@ async function mappingDetailIpSystem(data) {
         let sysId = data[i].id;
         let listIp = await getDetailBySystemId(sysId);
         let ipProdList = listIp.filter(item => item.type === 'PROD');
-        let ipProd = ipProdList.map(i => i.IP).join(',');
+        let ipProd = ipProdList.map(i => i.IP).join(', \n');
         let ipPpeList = listIp.filter(item => item.type === 'PPE/UAT');
-        let ipPpe = ipPpeList.map(i => i.IP).join(',');
-        data[i].ipProdShort = ipProd?.substring(0, 20);
+        let ipPpe = ipPpeList.map(i => i.IP).join(', \n');
+        data[i].ipProdShort = ipProd?.split(',')[0];
         data[i].ipProd = ipProd;
-        data[i].ipPpeShort = ipPpe?.substring(0, 20);
+        data[i].ipPpeShort = ipPpe?.split(',')[0];
         data[i].ipPpe = ipPpe;
     }
 }
@@ -193,7 +193,8 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             let ip = jsonData[i].IP;
             let hostname = jsonData[i].Hostname;
             let description = jsonData[i].Description;
-            await insertServerIp(serverCode, serverName, type, ip, hostname, description, info.username);
+            let username = jsonData[i].Username;
+            await insertServerIp(serverCode, serverName, type, ip, hostname, description, username);
         }
         let listSys = await service.getAllSystem(req.body.name, info.username);
         await mappingDetailIpSystem(listSys);

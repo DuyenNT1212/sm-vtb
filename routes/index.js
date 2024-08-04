@@ -111,8 +111,8 @@ router.post(
         if (systemDb.length !== 0) {
             return res.status(409).end();
         } else {
-            await service.addSystem(req.body.name, req.body.code, req.body.description, info.username);
-            let listSys = await service.getAllSystem(req.body.name, info.username);
+            await service.addSystem(req.body.name, req.body.code, req.body.description, req.body.username);
+            let listSys = await service.getAllSystem(req.body.name);
             await mappingDetailIpSystem(listSys);
             res.render("partials/table-sys-management", {
                 error: "",

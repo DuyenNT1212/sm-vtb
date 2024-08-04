@@ -36,6 +36,7 @@ $(".close-modal").click(function () {
 $("#btnAddNew").click(function () {
     let newSystem = $("#newSystemName").val().trim();
     let newSystemCode = $("#newSystemCode").val().trim();
+    let username = $("#username").val().trim();
     let description = $("#description").val().trim();
     $("#warningAddNewSystem").empty();
     $.ajax({
@@ -44,6 +45,7 @@ $("#btnAddNew").click(function () {
         data: {
             name: newSystem,
             code: newSystemCode,
+            username: username,
             description: description,
         },
         statusCode: {

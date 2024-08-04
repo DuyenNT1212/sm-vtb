@@ -15,7 +15,7 @@
                                    aria-describedby="basic-addon1">
                         </div>
                     </div>
-                    <div class="col-md-2">
+                    <div class="col-md-3">
                         <div class="input-group">
                             <div class="input-group-prepend">
                                 <span class="input-group-text" id="basic-addon1">IP</span>
@@ -37,10 +37,7 @@
                     <div class="col-md-2">
                         <button id="searchBtn" class="btn btn-outline-success">Tìm kiếm</button>
                     </div>
-                    <div class="col-md-2">
-                        <button id="btnOpenModalAdd" class="btn btn-success">Thêm mới</button>
-                    </div>
-                    <div class="col-md-4" style="margin-top: 10px">
+                    <div class="col-md-3" style="margin-top: 10px">
                         <input type="file" id="fileUpload" class="form-control" accept=".xlsx">
 <!--                        <a href='./Sample_template.xlsx' id="downloadTemplate" download>Tải file mẫu tại đây</a>-->
                         <a href="" id="downloadTemplate">Tải file mẫu tại đây</a>
@@ -48,8 +45,13 @@
                     <div class="col-md-2" style="margin-top: 10px">
                         <button id="btnUploadFile" class="btn btn-info">Upload file</button>
                     </div>
-                    <div class="col-md-2" style="margin-top: 10px">
-                        <button id="btnDownloadFile" class="btn btn-outline-info">Download file</button>
+                </div>
+
+                <div class="row">
+                    <div class="col-md-9"></div>
+                    <div class="col-md-3" >
+                        <button style="float: right; margin-left: 20px" id="btnOpenModalAdd" class="btn btn-success">Thêm mới</button>
+                        <button style="float: right" id="btnDownloadFile" class="btn btn-outline-info">Export file</button>
                     </div>
                 </div>
 
@@ -125,6 +127,10 @@
                     <div class="form-group">
                         <label for="name">Tên hệ thống</label>
                         <input id="newSystemName" type="text" class="form-control" name="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="name">Người quản lý</label>
+                        <input id="username" type="text" class="form-control" name="name" required>
                     </div>
                     <div class="form-group">
                         <label for="name">Mô tả</label>

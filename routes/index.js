@@ -194,6 +194,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
             let hostname = jsonData[i].Hostname;
             let description = jsonData[i].Description;
             let username = jsonData[i].Username;
+            console.log(description, username)
             await insertServerIp(serverCode, serverName, type, ip, hostname, description, username);
         }
         let listSys = await service.getAllSystem(req.body.name, info.username);
@@ -213,7 +214,7 @@ router.post('/upload', upload.single('file'), async (req, res) => {
 async function insertServerIp(serverCode, serverName, type, ip, hostname, description, username) {
     let server = await getSystemByCode(serverCode);
     if (server.length === 0) {
-        await addSystem(serverName, serverCode, username);
+        await addSystem(serverName, serverCode, description, username);
         let serverAdded = await getSystemByCode(serverCode);
         await insertIpHostname(serverAdded[0].id, ip, hostname, description, type);
     } else {
@@ -225,13 +226,42 @@ router.post('/file-upload/upload', upload.single('file'), async (req, res) => {
         return res.status(400).send('No file uploaded');
     }
 
-    // console.log(req.file.originalname, req.file.buffer.toString('binary'), req.body.systemId)
-    await service.deleteFileServer(req.body.systemId)
-    await service.addFileSystem(req.body.systemId, req.file.originalname, req.file.buffer.toString('binary'))
+    console.log('req.file', req.file)
+
+    fs.readFile(req.file.path, async (err, data) => {
+        if (err) {
+            console.error('Error reading file:', err);
+            return res.status(500).send('Error reading file.');
+        }
+
+        // Convert the file data to a base64 string
+        const base64Data = data.toString('binary');
+
+        await service.deleteFileServer(req.body.systemId)
+        await service.addFileSystem(req.body.systemId, req.file.originalname, base64Data)
+    });
+
+    fs.unlinkSync(req.file.path);
 
     res.render("partials/upload-file-server", {
-        fileName: req.file.originalname
+        fileName: req.file.originalname,
+        sysId: req.body.systemId
     });
+});
+
+router.get('/file-upload', async (req, res) => {
+    let sysId = req.query.systemId
+
+    let fileInfo = await service.getFileSystemBySysId(sysId);
+
+    if (fileInfo.length === 0) {
+        res.status(200).end();
+    } else {
+        res.render("partials/upload-file-server", {
+            fileName: fileInfo[0].file_name,
+            sysId: sysId
+        });
+    }
 });
 
 async function insertIpHostname(sysId, ip, hostname, note, type) {
@@ -244,12 +274,39 @@ async function insertIpHostname(sysId, ip, hostname, note, type) {
 router.get('/file-upload/download', async (req, res) => {
     const sysId = req.query.systemId;
 
-    let ipHostnameDb = await service.getFileSystemBySysId(sysId);
-    if (ipHostnameDb.length === 0) {
+    let fileInfo = await service.getFileSystemBySysId(sysId);
+    if (fileInfo.length === 0) {
         return res.status(404).end();
     } else {
-        return res.download(ipHostnameDb)
+        const fileName = fileInfo[0].file_name;
+        const content = fileInfo[0].content;
+        const type = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        const outputFilePath = path.join(__dirname + '/uploads', fileName);
+
+        res.setHeader('Content-Type', type);
+
+        fs.writeFile(outputFilePath, content, { encoding: 'binary' }, (err) => {
+            if (err) {
+                console.error('Error writing file:', err);
+                return;
+            }
+            console.log(`File saved to ${outputFilePath}`);
+        });
+
+        // console.log(typeof content, fileInfo[0], Buffer.from(content))
+
+        // Send the file data as the response
+        res.end(Buffer.from(content,'binary').toString('utf8'));
     }
+});
+
+router.post('/file-upload/delete', async (req, res) => {
+    const sysId = req.body.systemId;
+
+    await service.deleteFileServer(sysId);
+
+    return res.status(200).end();
+
 });
 
 router.get("/logout", authUser, async (req, res, next) => {

@@ -115,6 +115,7 @@ $("#tableManagement").on("click", ".delete-system", function () {
 
 $("#tableManagement").on("click", ".edit-system", function () {
     $("#tableIpHostName").empty();
+    $("#uploadFileServerDiv").empty();
     let currentRow = $(this).closest("tr");
     let systemId = currentRow.find("td:eq(8)").text();
 
@@ -130,6 +131,19 @@ $("#tableManagement").on("click", ".edit-system", function () {
     })
         .done(function (res, status, xhr) {
             $("#tableIpHostName").append(res);
+            $.ajax({
+                url: "/file-upload",
+                type: "get",
+                data: {
+                    systemId: systemId,
+                },
+            })
+                .done(function (res, status, xhr) {
+                    $("#uploadFileServerDiv").append(res);
+                })
+                .fail((err) => {
+                    let status = err.status;
+                });
         })
         .fail((err) => {
             let status = err.status;
@@ -214,6 +228,7 @@ $("#tableManagement").on("click", ".edit-system", function () {
                 contentType: false,
                 success: function (data) {
                     $("#uploadFileServerDiv").append(data);
+                    document.getElementById('fileServer').value = '';
                 },
                 error: function (xhr, status, error) {
                     console.error(error);
@@ -238,6 +253,21 @@ $("#tableManagement").on("click", ".edit-system", function () {
             .done(function (res, status, xhr) {
             })
             .fail((xhr, status, errorThrow) => {
+            });
+    });
+
+    $("#btnDeleteFileServer").click(function () {
+        $.ajax({
+            url: "/file-upload/delete",
+            type: "post",
+            data: {
+                sysId: systemId,
+            },
+        })
+            .done(function (res, status, xhr) {
+                $("#uploadFileServerDiv").empty();
+            })
+            .fail((err) => {
             });
     });
 });

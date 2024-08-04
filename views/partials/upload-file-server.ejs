@@ -1,16 +1,56 @@
-<div class="form-row">
+<div id="bodyFileUploadDiv" class="form-row">
     <div class="form-group col-md-4">
-        <p><%= fileName %></p>
+        <p id="fileName"><%= fileName %></p>
+        <p id="sysId" style="display: none"><%= sysId %></p>
     </div>
-    <div class="form-group col-md-3">
+    <div class="form-group col-md-2">
         <button class="btn" id="btnDownloadFileServer" style="position: relative; top: 1px">
             <i class="fa fa-download"></i> Download
+<!--            <a href='/Sample_template.xlsx' download></a>-->
         </button>
     </div>
 
-    <div class="form-group col-md-3">
-        <button class="btn" id="btnDownloadFileServer" style="position: relative; top: 1px">
+    <div class="form-group col-md-2">
+        <button class="btn" id="btnDeleteFileServer" style="position: relative; top: 1px">
             <i class="fa fa-trash"></i> Delete
         </button>
     </div>
 </div>
+
+<script>
+    $("#btnDownloadFileServer").click(function () {
+        $.ajax({
+            url: "/file-upload/download",
+            type: "get",
+            data: {
+                systemId: document.getElementById("sysId").innerText,
+            },
+        })
+            .done(function (res, status, xhr) {
+                console.log(typeof res)
+                saveFile(document.getElementById("fileName").innerText, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', res)
+            })
+            .fail((xhr, status, errorThrow) => {
+            });
+    });
+
+    function saveFile(fileName, type, data) {
+        return saveAs(new Blob([data], { type: type }), fileName);
+    }
+
+    $("#btnDeleteFileServer").click(function () {
+        $.ajax({
+            url: "/file-upload/delete",
+            type: "post",
+            data: {
+                systemId: document.getElementById("sysId").innerText,
+            },
+        })
+            .done(function (res, status, xhr) {
+
+            })
+            .fail((err) => {
+            });
+        $("#bodyFileUploadDiv").empty();
+    });
+</script>

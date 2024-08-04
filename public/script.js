@@ -300,16 +300,3 @@ $("#btnDownloadFile").click(function () {
         });
 });
 
-$("#downloadTemplate").click(function () {
-    const fileUrl = '/asset/Sample_template.xlsx';
-
-    fetch(fileUrl)
-        .then(response => response.blob())
-        .then(blob => {
-            // Ensure the correct MIME type is used for Excel files
-            const file = new Blob(blob, { type: 'application/octet-stream' });
-            // Use FileSaver.js to save the file
-            saveAs(file, 'Sample_template.xlsx');
-        })
-        .catch(error => console.error('Error fetching the file:', error));
-});

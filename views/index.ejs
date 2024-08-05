@@ -154,6 +154,30 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group col-md-2">
+                        <label for="currentServerCode">Mã hệ thống</label>
+                        <input type="text" class="form-control" id="currentServerCode">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="currentServerName">Tên hệ thống</label>
+                        <input type="text" class="form-control" id="currentServerName">
+                    </div>
+                    <div class="form-group col-md-3">
+                        <label for="currentDescription">Mô tả</label>
+                        <input type="text" class="form-control" id="currentDescription">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <label for="currentUsername">Người quản lý</label>
+                        <input type="text" class="form-control" id="currentUsername">
+                    </div>
+                    <div class="form-group col-md-2">
+                        <button id="btn-edit-server" style="position: relative; top: 32px" type="submit"
+                                class="btn btn-success">Cập nhật
+                        </button>
+                    </div>
+                    <div id="warningUpdateSystem"></div>
+                </div>
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="type" value="PROD" id="prod" checked>
                     <label class="form-check-label" for="prod">

@@ -290,6 +290,31 @@ async function addSystem(name, code, description, username) {
   ));
 }
 
+async function updateSystem(name, code, description, username, id) {
+  let pro = new Promise((resolve, reject) => {
+    let sql = "update sm_system set name = ?, code = ?, description = ?, username = ? where id = ?";
+    db.query(
+        sql,
+        [name, code, description, username, id],
+        (err, data) => {
+          if (err) throw err;
+          resolve(data);
+        }
+    );
+  });
+
+  let listUser = getSystemByName(name);
+
+  return (res = pro.then(
+      (val) => {
+        return val.length != 0 ? listUser : null;
+      },
+      (reason) => {
+        console.error(reason); // Error!
+      }
+  ));
+}
+
 async function addFileSystem(sysId, fileName, content) {
   let pro = new Promise((resolve, reject) => {
     let sql = "insert into SM_SERVER_FILE(system_id, file_name, content) values (?, ?, ?)";
@@ -481,6 +506,7 @@ module.exports = {
   getAllSystem,
   getAllSystemDetail,
   addSystem,
+  updateSystem,
   deleteSys,
   editSystem,
   getDetailBySystemId,

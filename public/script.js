@@ -31,6 +31,31 @@ $("#btnOpenModalAdd").click(function () {
 $(".close-modal").click(function () {
     $('#add-modal').modal('hide');
     $('#details-modal').modal('hide');
+
+    document.getElementById('newIp').value = '';
+    document.getElementById('newHostname').value = '';
+    document.getElementById('newNote').value = '';
+
+    $("#tableManagement").empty();
+    let sysName = $("#sysNameSearch").val().trim();
+    let ip = $("#ipSearch").val().trim();
+    let hostname = $("#hostnameSearch").val().trim();
+    $.ajax({
+        url: "/system/all",
+        type: "get",
+        data: {
+            sysName: sysName,
+            ip: ip,
+            hostname: hostname
+        },
+    })
+        .done(function (res, status, xhr) {
+            $("#tableManagement").append(res);
+            $("#btnUpdateUser").attr("data-dismiss", "modal");
+        })
+        .fail((err) => {
+            let status = err.status;
+        });
 });
 
 $("#btnAddNew").click(function () {
@@ -118,6 +143,15 @@ $("#tableManagement").on("click", ".edit-system", function () {
     $("#uploadFileServerDiv").empty();
     let currentRow = $(this).closest("tr");
     let systemId = currentRow.find("td:eq(8)").text();
+    let currentServerCode = currentRow.find("td:eq(1)").text();
+    let currentServerName = currentRow.find("td:eq(2)").text();
+    let currentDescription = currentRow.find("td:eq(5)").text();
+    let currentUsername = currentRow.find("td:eq(6)").text();
+
+    document.getElementById('currentServerCode').value = currentServerCode;
+    document.getElementById('currentServerName').value = currentServerName;
+    document.getElementById('currentDescription').value = currentDescription;
+    document.getElementById('currentUsername').value = currentUsername;
 
     $("#details-modal").modal('show');
     $("#warningAddNewIpHostname").empty();
@@ -149,8 +183,48 @@ $("#tableManagement").on("click", ".edit-system", function () {
             let status = err.status;
         });
 
+    $("#btn-edit-server").click(function () {
+        $("#warningUpdateSystem").empty();
+        let updateServerCode = $("#currentServerCode").val().trim();
+        let updateServerName = $("#currentServerName").val().trim();
+        let updateDescription = $("#currentDescription").val().trim();
+        let updateUsername = $("#currentUsername").val().trim();
+        $.ajax({
+            url: "/system/update",
+            type: "post",
+            data: {
+                systemId: systemId,
+                serverCode: updateServerCode,
+                serverName: updateServerName,
+                description: updateDescription,
+                username: updateUsername
+            }
+        })
+            .done(function (res, status, xhr) {
+                $("#warningUpdateSystem").append(
+                    '\
+                    <div class="alert alert-success" style="width: 100%; margin-top: 10px" role="alert">' +
+                    'Cập nhật thành công' +
+                    "</div>"
+                );
+            })
+            .fail((err) => {
+                let status = err.status;
+                if (status === 409) {
+                    errText = `Thông tin đã tồn tại!`;
+                    $("#warningUpdateSystem").append(
+                        '\
+                        <div class="alert alert-danger" style="width: 100%; margin-top: 10px" role="alert">' +
+                        errText +
+                        "</div>"
+                    );
+                }
+            });
+    });
+
     $("#btn-add-new-ip-hostname").click(function () {
         $("#tableIpHostName").empty();
+        $("#warningUpdateSystem").empty();
         let type = $('input[name="type"]:checked').val();
         let newIp = $("#newIp").val().trim();
         let newHostname = $("#newHostname").val().trim();

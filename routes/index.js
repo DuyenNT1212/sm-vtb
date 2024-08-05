@@ -145,6 +145,21 @@ router.post(
 );
 
 router.post(
+    "/system/update",
+    authUser,
+    async (req, res, next) => {
+        let serverCode = req.body.serverCode;
+        let serverName = req.body.serverName;
+        let description = req.body.description;
+        let username = req.body.username;
+        let systemId = req.body.systemId;
+
+        await service.updateSystem(serverName, serverCode, description, username, systemId);
+        res.status(200).end();
+    }
+);
+
+router.post(
     "/system/delete",
     authUser,
     async (req, res, next) => {
